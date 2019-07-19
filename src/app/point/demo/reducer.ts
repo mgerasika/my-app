@@ -3,7 +3,7 @@ import {keys} from 'ts-transformer-keys';
 import {catchError} from 'rxjs/operators';
 import {IBaseStore, ReducerBase} from '../../core/core';
 import {ILogin, ISum} from './service';
-import {ITestAction, TestAction} from './action';
+import {ITestAction, TestActions} from './action';
 
 export interface ITestStore extends IBaseStore {
   result: number;
@@ -11,22 +11,22 @@ export interface ITestStore extends IBaseStore {
 
 class TestReducer extends ReducerBase<ITestStore> implements ITestAction {
   public getStoreName() {
-    return new TestAction().getStoreName();
+    return new TestActions().getStoreName();
   }
 
-  public loginApi(request: ILogin, payload: boolean): ITestStore {
+  public login(request: ILogin, payload: boolean): ITestStore {
     return {
       ...this.store,
     };
   }
 
-  public logoutApi(payload: boolean): ITestStore {
+  public logout(payload: boolean): ITestStore {
     return {
       ...this.store,
     };
   }
 
-  public sumAction(request: ISum, payload: ISum): ITestStore {
+  public sum( payload: ISum): ITestStore {
     return {
       ...this.store,
       result: payload.x + payload.y

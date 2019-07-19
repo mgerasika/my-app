@@ -10,7 +10,7 @@ interface ITestActionA {
 
   logoutApi(): Promise<boolean>;
 
-  sum(request: ISum): IDispatch;
+  sum(request: ISum): void;
 }
 
 interface ITestReducerA {
@@ -21,60 +21,39 @@ interface ITestReducerA {
   sum(payload?: ISum): ITestStore;
 }
 
+// code start here
 export interface ITestAction {
-  loginApi(request: ILogin, payload?: boolean): IDispatch | ITestStore;
+  login(request: ILogin, payload?: boolean): Promise<any> | ITestStore;
 
-  logoutApi(payload?: boolean): Promise<boolean> | ITestStore;
+  logout(payload?: boolean): Promise<boolean> | ITestStore;
 
-  sumAction(request: ISum, payload?: ISum): IDispatch | ITestStore;
+  sum(request: ISum, payload?: ISum): void | ITestStore;
 }
 
-export class TestAction extends ActionBase implements ITestAction {
-  constructor() {
-    super();
+export class TestActions extends ActionBase implements ITestAction {
+  @action()
+  public login(request: ILogin, payload?: boolean): Promise<any> {
+    this.dispatchRequest();
+    return testService.requestLogin(request)
+      .then((data) => this.dispatchSuccess(data))
+      .catch((err) => this.dispatchFailed(err));
   }
 
   @action()
-  public loginApi(request: ILogin, payload?: boolean): IDispatch {
-    return (dispatch: IDispatch) => {
-      dispatch(this.request());
-      return testService.
-        requestLogin(request).
-        then(data => dispatch(this.success(data))).
-        catch(error => dispatch(this.failed));
-    };
+  public logout(): Promise<any> {
+    this.dispatchRequest();
+    return testService.requestLogout()
+      .then((data) => this.dispatchSuccess(data))
+      .catch((err) => this.dispatchFailed(err));
   }
 
   @action()
-  public logoutApi(): Promise<any> {
-    this.request();
-    return testService.requestLogout().then(this.success).catch(this.failed);
-  }
-
-  @action()
-  public sumAction(request: ISum, payload?: ISum): IDispatch {
-    return this.dispatch(request);
+  public sum(request: ISum, payload?: ISum): void {
+    this.dispatch(request);
   }
 
   public getStoreName() {
     return 'test';
   }
 }
-
-export const loginApiAction = (email: string, password: string) => (dispatch: Dispatch) => {
-  dispatch(loginActions.request({loading: true}));
-  dispatch(loaderActions.showLoader());
-
-  return loginApi
-    .login(email, password)
-    .then(response => {
-      dispatch(loaderActions.hideLoader());
-      return dispatch(loginActions.success(response.data));
-    })
-    .catch((error: IError) => {
-      dispatch(loaderActions.hideLoader());
-      dispatch(loginActions.failure(error));
-      return Promise.reject(error);
-    });
-};
 
