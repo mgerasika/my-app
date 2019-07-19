@@ -39,6 +39,18 @@ export class PointComponent extends AngularComponent<IProps> implements OnInit {
 const dispatch = (fn: any) => {
   fn((data: IAction) => {
     console.log(`action=${data.name}  payload=${JSON.stringify(data.payload)}`);
+
+    setTimeout(() => {
+      reducerManager.dispatch(data);
+    }, 1000);
   });
 };
+
+class ReducerManager {
+  public dispatch(data: IAction) {
+
+  }
+}
+
+const reducerManager = new ReducerManager();
 

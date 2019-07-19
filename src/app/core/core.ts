@@ -49,18 +49,23 @@ export interface IAction {
 
 export declare type IDispatch = (dispatcher: any) => void
 
+const assert = (exp: boolean, msg: string) => {
+  if (!exp) {
+    alert(msg);
+  }
+};
+
 export function action() {
   return function(target, propertyKey: string, descriptor: PropertyDescriptor) {
-    var originalMethod = descriptor.value;
+    const baseClass = Object.getPrototypeOf(target);
+    assert(baseClass.constructor === ActionBase, 'invalid usage');
+    const originalMethod = descriptor.value;
     descriptor.value = function() {
-      const key = propertyKey;
-
       return (dispatcher) => {
         const obj = new target.constructor();
-        obj.currentActionName = key;
+        obj.currentActionName = propertyKey;
         obj.currentDispatcher = dispatcher;
-        var args = arguments;
-        return originalMethod.apply(obj, args);
+        return originalMethod.apply(obj, arguments);
       };
     };
     return descriptor;
@@ -78,41 +83,36 @@ export abstract class ActionBase {
   public currentDispatcher: IDispatch;
 
   public dispatchFailed(error) {
-    this.dispatch({
-      name: this.createFullName('failed'),
-      payload: this.createFullName(this.currentActionName)
+    this.currentDispatcher({
+      name: this.createFullActionName(this.currentActionName + ':failed'),
+      payload: error,
     });
   }
 
   public abstract getStoreName();
 
   public dispatchRequest() {
-    this.dispatch({
-      name: this.createFullName('request'),
-      payload: this.createFullName(this.currentActionName)
+    this.currentDispatcher({
+      name: this.createFullActionName(this.currentActionName + ':request'),
+      payload: ''
     });
   }
 
   public dispatchSuccess(args: any) {
-    this.dispatch({
-      name: this.createFullName('success'),
-      payload: this.createFullName(this.currentActionName)
-    });
-
-    this.dispatch({
-      name: this.createFullName(this.currentActionName),
+    this.currentDispatcher({
+      name: this.createFullActionName(this.currentActionName + ':success'),
       payload: args
     });
   }
 
-  protected createFullName(name): string {
+  protected createFullActionName(name): string {
     const res = `[${this.getStoreName().toUpperCase()}-${name}]`;
     return res;
   }
 
   protected dispatch(payload: any) {
     const data = {
-      name: this.createFullName(this.currentActionName),
+      name: this.createFullActionName(this.currentActionName),
       payload: payload
     };
     this.currentDispatcher(data);

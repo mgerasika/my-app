@@ -21,22 +21,27 @@ interface ITestReducerA {
   sum(payload?: ISum): ITestStore;
 }
 
-// code start here
+// code start here ??
 export interface ITestAction {
-  login(request: ILogin, payload?: boolean): Promise<any> | ITestStore;
+  login(request: ILogin, payload?: boolean): Promise<string> | ITestStore;
 
-  logout(payload?: boolean): Promise<boolean> | ITestStore;
+  logout(payload?: boolean): Promise<string> | ITestStore;
 
   sum(request: ISum, payload?: ISum): void | ITestStore;
 }
 
 export class TestActions extends ActionBase implements ITestAction {
   @action()
-  public login(request: ILogin, payload?: boolean): Promise<any> {
+  public login(request: ILogin): Promise<string> {
     this.dispatchRequest();
     return testService.requestLogin(request)
-      .then((data) => this.dispatchSuccess(data))
-      .catch((err) => this.dispatchFailed(err));
+      .then((data) => {
+        this.dispatchSuccess(data);
+        return Promise.resolve('');
+      })
+      .catch((ex) => {
+        return Promise.reject(ex.toLocaleString());
+      });
   }
 
   @action()

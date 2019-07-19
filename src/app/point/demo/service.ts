@@ -11,12 +11,12 @@ export interface ISum {
 }
 
 export class TestService {
-  requestLogin(request: ILogin): Promise<any> {
-    return Promise.resolve();
+  requestLogin(request: ILogin): Promise<string> {
+    return Promise.resolve('login success from server');
   }
 
   requestLogout(): Promise<string> {
-    return Promise.resolve('hi');
+    return Promise.resolve('logout succcess from server');
   }
 }
 

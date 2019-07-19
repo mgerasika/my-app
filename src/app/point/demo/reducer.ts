@@ -26,7 +26,7 @@ class TestReducer extends ReducerBase<ITestStore> implements ITestAction {
     };
   }
 
-  public sum( payload: ISum): ITestStore {
+  public sum(payload: ISum): ITestStore {
     return {
       ...this.store,
       result: payload.x + payload.y
