@@ -12,11 +12,19 @@ export interface ISum {
 
 export class TestService {
   requestLogin(request: ILogin): Promise<string> {
-    return Promise.resolve('login success from server');
+    return new Promise<string>(resolve => {
+      setTimeout(() => {
+        resolve('login success from server');
+      }, 1000);
+    });
   }
 
   requestLogout(): Promise<string> {
-    return Promise.resolve('logout succcess from server');
+    return new Promise<string>(resolve => {
+      setTimeout(() => {
+        resolve('logout success from server');
+      }, 1000);
+    });
   }
 }
 

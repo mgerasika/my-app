@@ -1,14 +1,14 @@
 import {Component, OnInit, Input} from '@angular/core';
 import {keys} from 'ts-transformer-keys';
 import {catchError} from 'rxjs/operators';
-import {action, ActionBase, IBaseStore, IDispatch} from '../../core/core';
+import {action, ActionBase, IBaseStore, IDispatch, nameof} from '../../core/core';
 import testService, {ILogin, ISum} from './service';
-import {ITestStore} from './reducer';
+import {IGlobalStore, ITestStore} from './reducer';
 
 interface ITestActionA {
   loginApi(request: ILogin): Promise<boolean>;
 
-  logoutApi(): Promise<boolean>;
+  logoutApi(request: void): Promise<boolean>;
 
   sum(request: ISum): void;
 }
@@ -21,11 +21,10 @@ interface ITestReducerA {
   sum(payload?: ISum): ITestStore;
 }
 
-// code start here ??
 export interface ITestAction {
-  login(request: ILogin, payload?: boolean): Promise<string> | ITestStore;
+  login(request: ILogin, payload?: string): Promise<string> | ITestStore;
 
-  logout(payload?: boolean): Promise<string> | ITestStore;
+  logout(request: void, payload: string): Promise<string> | ITestStore;
 
   sum(request: ISum, payload?: ISum): void | ITestStore;
 }
@@ -45,11 +44,16 @@ export class TestActions extends ActionBase implements ITestAction {
   }
 
   @action()
-  public logout(): Promise<any> {
+  public logout(): Promise<string> {
     this.dispatchRequest();
     return testService.requestLogout()
-      .then((data) => this.dispatchSuccess(data))
-      .catch((err) => this.dispatchFailed(err));
+      .then((data) => {
+        this.dispatchSuccess(data);
+        return Promise.resolve('');
+      })
+      .catch((ex) => {
+        return Promise.reject(ex.toLocaleString());
+      });
   }
 
   @action()
@@ -58,7 +62,7 @@ export class TestActions extends ActionBase implements ITestAction {
   }
 
   public getStoreName() {
-    return 'test';
+    return nameof<IGlobalStore>('test');
   }
 }
 
