@@ -1,14 +1,4 @@
-import {IBaseStore} from '../../core/core';
-
-export interface ILogin {
-  login: string;
-  password: string;
-}
-
-export interface ISum {
-  x: number;
-  y: number;
-}
+import {ILogin} from './model';
 
 export class TestService {
   requestLogin(request: ILogin): Promise<string> {

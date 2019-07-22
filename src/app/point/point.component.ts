@@ -1,38 +1,36 @@
-import {Component, OnInit, Input} from '@angular/core';
+import {Component, OnInit, Input, EventEmitter} from '@angular/core';
 import {keys} from 'ts-transformer-keys';
-import {
-  Props,
-  AngularComponent,
-  IAction,
-  reducer,
-  getStoreNameFromUniqueActionName,
-  ReducerBase,
-  reducerManager,
-  dispatch
-} from '../core/core';
-import {TestActions} from './demo/action';
-import {globalInitialStore, TestReducer} from './demo/reducer';
 import * as assert from 'assert';
+import {AngularComponent, Props} from '../../lib/angular';
+import {globalInitialStore} from '../../demo/store';
+import {TestReducer} from '../../demo/reducer';
+import {reducerManager} from '../../lib/reducer';
+import {dispatch} from '../../lib/action';
+import {actions} from '../../demo/action';
+import {connect} from '../../lib/connect';
+import {ILogin, ISum} from '../../demo/model';
+import {storeManager} from '../../lib/store';
 
 class IProps {
-  x = 0;
-  y = 0;
-  z = 0;
+  x = 1;
+  y = 2;
+  result = 0;
+  message = '';
+  onDoSum: (sum: ISum) => void;
+  onDoLogin: (login: ILogin) => void;
+  onDoLogout: () => void;
 }
-
-console.log(Object.keys(IProps));
 
 @Component({
   selector: 'app-point',
   templateUrl: './point.component.html',
   styleUrls: ['./point.component.css'],
   // tslint:disable-next-line:no-inputs-metadata-property
-  inputs: ['x', 'y', 'z'],
+  inputs: ['x', 'y', 'result', 'message'],
 })
 export class PointComponent extends AngularComponent<IProps> implements OnInit {
-  ngOnInit() {
-    reducerManager.init(globalInitialStore);
-    reducerManager.add(new TestReducer());
+  public constructor() {
+    super();
   }
 
   @Props()
@@ -41,19 +39,39 @@ export class PointComponent extends AngularComponent<IProps> implements OnInit {
   }
 
   public onSumClick() {
-    dispatch(actions.test.sum({x: 1, y: 2}));
+    this.props.onDoSum({x: this.props.x, y: this.props.y});
   }
 
   public onLoginClick() {
-    dispatch(actions.test.login({login: 'login', password: 'zxc123=-'}));
+    this.props.onDoLogin({login: 'login', password: 'zxc123=-'});
   }
 
   public onLogoutClick() {
-    dispatch(actions.test.logout());
+    this.props.onDoLogout();
   }
 }
 
-const actions = {
-  test: new TestActions()
+const mapStateToProps = ({test}): Partial<IProps> => {
+  return {
+    result: test.result,
+    message: test.message,
+  };
 };
+
+const mapDispatchToProps = (): Partial<IProps> => {
+  return {
+    onDoSum: (sum: ISum) => {
+      dispatch(actions.test.sum(sum));
+    },
+    onDoLogin: (login: ILogin) => {
+      dispatch(actions.test.login(login));
+    },
+    onDoLogout: () => {
+      dispatch(actions.test.logout());
+    },
+  };
+};
+
+connect(PointComponent, mapStateToProps, mapDispatchToProps);
+
 

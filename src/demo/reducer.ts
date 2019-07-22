@@ -1,29 +1,13 @@
 import {Component, OnInit, Input} from '@angular/core';
 import {keys} from 'ts-transformer-keys';
 import {catchError} from 'rxjs/operators';
-import {baseInitialStore, IBaseStore, nameof, reducer, ReducerBase} from '../../core/core';
-import {ILogin, ISum} from './service';
-import {ITestAction, TestActions} from './action';
+import {ITestAction} from './action';
 import {init} from 'protractor/built/launcher';
-
-export interface ITestStore extends IBaseStore {
-  result: number;
-  message: string;
-}
-
-export const initialTestStore: ITestStore = {
-  ...baseInitialStore,
-  result: 0,
-  message: ''
-};
-
-export interface IGlobalStore {
-  test: ITestStore;
-}
-
-export const globalInitialStore: IGlobalStore = {
-  test: initialTestStore
-};
+import {reducer, ReducerBase} from '../lib/reducer';
+import {baseInitialStore, IBaseStore} from '../lib/store';
+import {nameof} from '../lib/utils';
+import {IGlobalStore, ITestStore} from './store';
+import {ILogin, ISum} from './model';
 
 export class TestReducer extends ReducerBase<ITestStore> implements ITestAction {
   public getStoreName() {

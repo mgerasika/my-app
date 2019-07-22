@@ -1,35 +1,21 @@
 import {Component, OnInit, Input} from '@angular/core';
 import {keys} from 'ts-transformer-keys';
 import {catchError} from 'rxjs/operators';
-import {action, ActionBase, IBaseStore, IDispatch, nameof} from '../../core/core';
-import testService, {ILogin, ISum} from './service';
-import {IGlobalStore, ITestStore} from './reducer';
-
-interface ITestActionA {
-  loginApi(request: ILogin): Promise<boolean>;
-
-  logoutApi(request: void): Promise<boolean>;
-
-  sum(request: ISum): void;
-}
-
-interface ITestReducerA {
-  loginApi(payload?: boolean): ITestStore;
-
-  logoutApi(payload?: boolean): ITestStore;
-
-  sum(payload?: ISum): ITestStore;
-}
+import {action, ActionBase} from '../lib/action';
+import {nameof} from '../lib/utils';
+import {IGlobalStore, ITestStore} from './store';
+import {ILogin, ISum} from './model';
+import testService from './service';
 
 export interface ITestAction {
   login(request: ILogin, payload?: string): Promise<string> | ITestStore;
 
-  logout(request: void, payload: string): Promise<string> | ITestStore;
+  logout(request: void, payload?: string): Promise<string> | ITestStore;
 
   sum(request: ISum, payload?: ISum): void | ITestStore;
 }
 
-export class TestActions extends ActionBase implements ITestAction {
+class TestActions extends ActionBase implements ITestAction {
   @action()
   public login(request: ILogin): Promise<string> {
     this.dispatchRequest();
@@ -57,7 +43,7 @@ export class TestActions extends ActionBase implements ITestAction {
   }
 
   @action()
-  public sum(request: ISum, payload?: ISum): void {
+  public sum(request: ISum): void {
     this.dispatch(request);
   }
 
@@ -66,3 +52,6 @@ export class TestActions extends ActionBase implements ITestAction {
   }
 }
 
+export const actions = {
+  test: new TestActions()
+};
