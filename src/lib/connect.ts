@@ -1,6 +1,6 @@
 import {AngularComponent} from './angular';
 import {IGlobalStore} from '../demo/store';
-import {IBaseStore} from './store';
+import {IBaseStore, storeManager} from './store';
 import {reduce} from 'rxjs/operators';
 import {reducerManager} from './reducer';
 
@@ -10,10 +10,12 @@ export const connect = (type: any, mapStateToProps: ConnectHandlerBase, mapDispa
 
     const dispatchers = mapDispatchToProps ? mapDispatchToProps({}) : {};
     Object.keys(dispatchers).forEach((key: string) => {
-      component[`__proto__`][key] = dispatchers[key];
+      // TODO investigate - probaldy broken context into foreach
+      // component[`__proto__`][key] = dispatchers[key];
+      component[key] = dispatchers[key];
     });
 
-    reducerManager.storeChagned$.subscribe((store: IGlobalStore) => {
+    storeManager.storeChagned$.subscribe((store: IGlobalStore) => {
       const newProps = {
         ...component.props,
         ...mapStateToProps ? mapStateToProps(store) : {},
